@@ -5,13 +5,15 @@
 # 2008 (c) by Christian Garbs <mitch@cgarbs.de>
 
 use strict;
-
+use Socket;
 
 #
 # Constants
 #
 
 
+my $gpsd_host = 'localhost';
+my $gpsd_port = 2947;
 my $locationfile = '~/.xkcdroute';
 my $verbose = 0;
 
@@ -34,6 +36,14 @@ sub my_print(@)
 # print a string if set to verbose
 {
     print join(' ', @_) . "\n" if $verbose;
+}
+
+sub abend($@)
+# exit with a defined error code and a message to stderr
+{
+    my $rc = shift @_;
+    warn join(' ', @_) . "\n";
+    exit $rc;
 }
 
 sub parse_coordinates($)
@@ -88,8 +98,7 @@ sub read_locations($)
 		COORDINATES => $2
 		};
 	} else {
-	    warn "unparseable line $. in location database: `$line'\n";
-	    exit 3;
+	    abend 3, "unparseable line $. in location database: `$line'";
 	}
 
     }
@@ -150,8 +159,7 @@ if ( $target = parse_coordinates( $params ) ) {
     my $target_count = scalar(@{$targets});
 
     if ($target_count == 0) {
-	warn "no suitable location found.\n";
-	exit 1;
+	abend 1, "no suitable location found.";
 
     } elsif ($target_count > 1) {
 	my_print 'multiple locations found:';
@@ -169,3 +177,14 @@ if ( $target = parse_coordinates( $params ) ) {
 
 # start tracking
 # TODO do_stuff($target);
+
+my_print 'connecting to gpsd';
+my $iaddr = inet_aton($gpsd_host) or abend 4, "unkown host: `$gpsd_host'";
+my $paddr = sockaddr_in($gpsd_port, $iaddr);
+my $proto = getprotobyname('tcp');
+
+socket(SOCK, PF_INET, SOCK_STREAM, $proto) or abend 5, "socket error: $!";
+connect(SOCK, $paddr) or abend 6, "connect error: $!";
+
+
+close(SOCK) or abend 7, "socket close error: $!";
