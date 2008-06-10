@@ -6,13 +6,26 @@
 
 use strict;
 
-my $verbose = 1;
+
+#
+# Constants
+#
+
+
+my $locationfile = '~/.xkcdroute';
+my $verbose = 0;
+
+
+#
+# Subroutines
+#
+
 
 sub show_usage()
 # print usage instructions
 {
     print <<'EOF';
-xkcdroute [ --help | shortcut | <latitude> <longitude> ]
+xkcdroute [ -v | --verbose ] [ --help | shortcut | <latitude> <longitude> ]
 EOF
 ;
 }
@@ -98,17 +111,34 @@ sub filter_locations($$)
 }
 
 
-my $locationfile = '~/.xkcdroute';
+#
+# Main program
+#
+
+
+# parse verbosity switch
+if (defined $ARGV[0]) {
+    if ($ARGV[0] eq '-v' or $ARGV[0] eq '--verbose') {
+	$verbose = 1;
+	shift @ARGV;
+    }
+}
+
+# prepare variables
 my $params = join ' ', @ARGV;
 my $target = undef;
 
+# handle help
 if ( $params eq '--help' ) {
     show_usage;
     exit 0;
 }
 
+# handle direct coordinates
 if ( $target = parse_coordinates( $params ) ) {
     my_print 'treating arguments as coordinates';
+
+# handle location lookup
 } else {
     my_print 'treating arguments as location';
     
@@ -137,3 +167,5 @@ if ( $target = parse_coordinates( $params ) ) {
     die "got unparseable coordinates from location database\n" unless $target;
 }
 
+# start tracking
+# TODO do_stuff($target);
