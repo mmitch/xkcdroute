@@ -44,6 +44,9 @@ Known locations  are read from ~/.xkcdroute.  Every  line must consist
 of a location name (used for the lookup), followed by a whitespace and
 a coordinate.  Empty  lines are ignored and lines  starting with # are
 treated as a comment.
+
+ -v, --verbose   activate verbose output
+ -h, --help      show this help text
 EOF
 ;
 }
