@@ -184,6 +184,11 @@ if (defined $ARGV[0]) {
 my $params = join ' ', @ARGV;
 my $target = undef;
 
+# handle missing parameters
+if ( $params eq '' ) {
+    abend 8, 'no target given (add --help for help)';
+}
+
 # handle help
 if ( $params eq '-h' or $params eq '--help' ) {
     show_usage;
