@@ -189,15 +189,15 @@ connect(SOCK, $paddr) or abend 6, "connect error: $!";
 
 while (1) {
 
-    print SOCK, "o\015\012";
+    print SOCK "o\015\012";
     my $line = <SOCK>;
 
     chomp $line;
     if ($line eq 'O=?') {
 	print scalar localtime, " NO FIX!\n";
     } else {
-	if ($line =~ /^O=(\S+)\s+(\d+(\.\d+)?)\s+(\d+(\.\d+)?)\s+(\d+(\.\d+)?)\s+(\d+(\.\d+)?)\s+(\d+(\.\d+)?)\s+(\d+(\.\d+)?)\s+(\d+(\.\d+)?)\s+) {
-	    my ($timestamp, $latitude, $longitude, $course) = ($2, $4, $5, $9);
+	if ($line =~ /^O=(\S+)\s+(\d+(\.\d+)?)\s+(\d+(\.\d+)?)\s+(\d+(\.\d+)?)\s+(\d+(\.\d+)?)\s+(\d+(\.\d+)?)\s+(\d+(\.\d+)?)\s+(\d+(\.\d+)?)\s+/) {
+	    my ($timestamp, $latitude, $longitude, $course, $bearing, $distance, $turn) = ($2, $4, $5, $9, undef, undef, undef);
 
 	    $bearing = 0; ## insert magic;
 	    $distance = 1; ## insert magic;
