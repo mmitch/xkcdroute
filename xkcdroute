@@ -125,7 +125,7 @@ sub filter_locations($$)
     return \@ret;
 }
 
-# from Math::Trig manpage:
+# from Math::Trig manpage:  longitude, latitude
 sub NESW { deg2rad($_[0]), deg2rad(90 - $_[1]) }
 
 sub calculate_distance($$$)
@@ -146,7 +146,7 @@ sub calculate_bearing($$$)
 {
     my ($target, $lat1, $long1) = (@_);
 
-    return rad2deg( great_circle_distance( NESW( $long1, $lat1 ), @{$target} ) );
+    return rad2deg( great_circle_direction( NESW( $long1, $lat1 ), @{$target} ) );
 }
 
 
