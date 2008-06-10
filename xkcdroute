@@ -1,0 +1,128 @@
+#!/usr/bin/perl -w
+#
+# simple navigation software based on an idea from xkcd.org
+#
+# 2008 (c) by Christian Garbs <mitch@cgarbs.de>
+
+use strict;
+
+my $verbose = 1;
+
+sub show_usage()
+# print usage instructions
+{
+    print <<'EOF';
+xkcdroute [ --help | shortcut | <latitude> <longitude> ]
+EOF
+;
+}
+
+sub my_print(@)
+# print a string if set to verbose
+{
+    print join(' ', @_) . "\n" if $verbose;
+}
+
+sub parse_params($)
+# try to parse a string as coordinates
+{
+    my $string = shift;
+
+    if ($string =~ /(\d+(\.\d+))\s+(\d+(\.\d+))/) {
+	return [$1, $3];
+    }
+
+    if ($string =~ /(N\s*\d+(\.\d+))\s*E\s*(\d+(\.\d+))/i) {
+	return [$1, $3];
+    }
+
+    if ($string =~ /(\d+(\.\d+))\s*N\s*(\d+(\.\d+))\s*E/i) {
+	return [$1, $3];
+    }
+
+    if ($string =~ /(\d+(\.\d+))\s*:\s*(\d+(\.\d+))/) {
+	return [$1, $3];
+    }
+
+    return 0;
+}
+
+sub read_locations($)
+# read stored locations
+{
+    my $file = shift;
+    my @ret;
+
+    $file =~ s/^~/$ENV{HOME}/;
+
+    open LOCATIONS, '<', $file or die "can't open `$file': $!\n";
+    while (my $line = <LOCATIONS>) {
+	chomp $line;
+	next if ($line =~ /^\s+$/);
+	next if ($line =~ /^\s*\#/);
+	
+	if ($line =~ /^(\S+?)\s(.+)$/) {
+	    push @ret, {
+		LOCATION => $1,
+		COORDINATES => $2
+		};
+	} else {
+	    warn "unparseable line $. in location data: `$line'\n";
+	    exit 3;
+	}
+
+    }
+    close LOCATIONS or die "can't close `$file': $!\n";
+
+    my_print scalar(@ret), 'locations read';
+
+    return \@ret;
+}
+
+sub filter_locations($$)
+# filter desired location(s)
+{
+    my ($haystack, $needle) = (@_);
+
+    my @ret = grep { $_->{LOCATION} =~ /$needle/ } @{$haystack};
+
+    return \@ret;
+}
+
+
+my $locationfile = '~/.xkcdroute';
+my $params = join ' ', @ARGV;
+my $target = undef;
+
+if ( $params eq '--help' ) {
+    show_usage;
+    exit 0;
+}
+
+if ( $target = parse_params( $params ) ) {
+    my_print 'treating arguments as coordinates';
+} else {
+    my_print 'treating arguments as location';
+    
+    my_print 'opening location database';
+    my $locations = read_locations($locationfile);
+
+    my_print 'looking for locations';
+    my $targets = filter_locations($locations, $params);
+    my $target_count = scalar(@{$targets});
+
+    if ($target_count == 0) {
+	warn "no suitable location found.\n";
+	exit 1;
+
+    } elsif ($target_count > 1) {
+	my_print 'multiple locations found:';
+	print "$_->{LOCATION}\n" foreach (@{$targets});
+	exit 2;
+    }
+
+    $target = $targets->[0]->{COORDINATES};
+    my_print 'matched location', $targets->[0]->{LOCATION};
+    my_print 'using coordinates', $target;
+}
+
