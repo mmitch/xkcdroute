@@ -16,6 +16,7 @@ my $gpsd_host = 'localhost';
 my $gpsd_port = 2947;
 my $locationfile = '~/.xkcdroute';
 my $verbose = 0;
+my $sleep = 5; # seconds between updates
 
 
 #
@@ -186,5 +187,35 @@ my $proto = getprotobyname('tcp');
 socket(SOCK, PF_INET, SOCK_STREAM, $proto) or abend 5, "socket error: $!";
 connect(SOCK, $paddr) or abend 6, "connect error: $!";
 
+while (1) {
+
+    print SOCK, "o\015\012";
+    my $line = <SOCK>;
+
+    chomp $line;
+    if ($line eq 'O=?') {
+	print scalar localtime, " NO FIX!\n";
+    } else {
+	if ($line =~ /^O=(\S+)\s+(\d+(\.\d+)?)\s+(\d+(\.\d+)?)\s+(\d+(\.\d+)?)\s+(\d+(\.\d+)?)\s+(\d+(\.\d+)?)\s+(\d+(\.\d+)?)\s+(\d+(\.\d+)?)\s+) {
+	    my ($timestamp, $latitude, $longitude, $course) = ($2, $4, $5, $9);
+
+	    $bearing = 0; ## insert magic;
+	    $distance = 1; ## insert magic;
+
+	    if ($course eq '?') {
+		$turn = '?';
+	    } else {
+		$turn = $course - $bearing;
+	    }
+
+	    print scalar localtime, " N$latitude E$longitude C$course D$distance B$bearing T$turn\n";
+	} else {
+	    warn "unparseable line `$line'\n";
+	}
+    }
+
+    sleep $sleep;
+
+}
 
 close(SOCK) or abend 7, "socket close error: $!";
