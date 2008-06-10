@@ -53,28 +53,32 @@ sub parse_coordinates($)
 {
     my $string = shift;
 
-    if ($string =~ /(-?\d+(\.\d+)?)\s+(-?\d+(\.\d+)?)/) {
-	return [$1, $3];
+    if ($string =~ /(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)/) {
+	return [$1, $2];
     }
 
-    if ($string =~ /(-?\d+(\.\d+)?)\s*:\s*(-?\d+(\.\d+)?)/) {
-	return [$1, $3];
+    if ($string =~ /(-?\d+(?:\.\d+)?)\s*:\s*(-?\d+(?:\.\d+)?)/) {
+	return [$1, $2];
     }
 
-    if ($string =~ /N(-?\s*\d+(\.\d+)?)\s*E\s*(-?\d+(\.\d+)?)/i) {
-	return [$1, $3];
+    if ($string =~ /N(-?\s*\d+(?:\.\d+)?)\s*E\s*(-?\d+(?:\.\d+)?)/i) {
+	return [$1, $2];
     }
 
     if ($string =~ /(-?\d+(\.\d+)?)\s*N\s*(-?\d+(\.\d+)?)\s*E/i) {
-	return [$1, $3];
+	return [$1, $2];
     }
 
-    if ($string =~ /E(-?\s*\d+(\.\d+)?)\s*N\s*(-?\d+(\.\d+)?)/i) {
-	return [$3, $1];
+    if ($string =~ /E(-?\s*\d+(?:\.\d+)?)\s*N\s*(-?\d+(?:\.\d+)?)/i) {
+	return [$2, $1];
     }
 
-    if ($string =~ /(-?\d+(\.\d+)?)\s*E\s*(-?\d+(\.\d+)?)\s*N/i) {
-	return [$3, $1];
+    if ($string =~ /(-?\d+(?:\.\d+)?)\s*E\s*(-?\d+(?:\.\d+)?)\s*N/i) {
+	return [$2, $1];
+    }
+
+    if ($string =~ m;^http://maps\.google.*/maps\?(?:[^&]+&)*q=(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?);i ) {
+	return [$1, $2];
     }
 
     return 0;
