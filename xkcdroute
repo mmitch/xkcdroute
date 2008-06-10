@@ -187,31 +187,39 @@ my $proto = getprotobyname('tcp');
 socket(SOCK, PF_INET, SOCK_STREAM, $proto) or abend 5, "socket error: $!";
 connect(SOCK, $paddr) or abend 6, "connect error: $!";
 
+# autoflush
+my $old_fh = select(SOCK);
+$| = 1;
+select($old_fh);
+
+my_print 'connected';
+
 while (1) {
 
+    my_print 'sending o';
     print SOCK "o\015\012";
     my $line = <SOCK>;
 
     chomp $line;
-    if ($line eq 'O=?') {
+    $line =~ s/\r$//;
+
+    my_print "received: $line";
+    if ($line eq 'GPSD,O=?') {
 	print scalar localtime, " NO FIX!\n";
     } else {
-	if ($line =~ /^O=(\S+)\s+(\d+(\.\d+)?)\s+(\d+(\.\d+)?)\s+(\d+(\.\d+)?)\s+(\d+(\.\d+)?)\s+(\d+(\.\d+)?)\s+(\d+(\.\d+)?)\s+(\d+(\.\d+)?)\s+/) {
-	    my ($timestamp, $latitude, $longitude, $course, $bearing, $distance, $turn) = ($2, $4, $5, $9, undef, undef, undef);
+	my @fields = split /\s+/, $line;
+	my ($timestamp, $latitude, $longitude, $course, $bearing, $distance, $turn) = ($fields[1], $fields[3], $fields[4], $fields[7], undef, undef, undef);
 
-	    $bearing = 0; ## insert magic;
-	    $distance = 1; ## insert magic;
+	$bearing = 0; ## insert magic;
+	$distance = 1; ## insert magic;
 
-	    if ($course eq '?') {
-		$turn = '?';
-	    } else {
-		$turn = $course - $bearing;
-	    }
-
-	    print scalar localtime, " N$latitude E$longitude C$course D$distance B$bearing T$turn\n";
+	if ($course eq '?') {
+	    $turn = '?';
 	} else {
-	    warn "unparseable line `$line'\n";
+	    $turn = $course - $bearing;
 	}
+	
+	print scalar localtime, " N$latitude E$longitude C$course D$distance B$bearing T$turn\n";
     }
 
     sleep $sleep;
