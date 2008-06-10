@@ -5,6 +5,7 @@
 # 2008 (c) by Christian Garbs <mitch@cgarbs.de>
 
 use strict;
+use Math::Trig qw(great_circle_direction great_circle_distance deg2rad rad2deg);
 use Socket;
 
 #
@@ -60,7 +61,7 @@ sub parse_coordinates($)
 	return [$1, $3];
     }
 
-    if ($string =~ /(-?N\s*\d+(\.\d+)?)\s*E\s*(-?\d+(\.\d+)?)/i) {
+    if ($string =~ /N(-?\s*\d+(\.\d+)?)\s*E\s*(-?\d+(\.\d+)?)/i) {
 	return [$1, $3];
     }
 
@@ -68,7 +69,7 @@ sub parse_coordinates($)
 	return [$1, $3];
     }
 
-    if ($string =~ /(-?E\s*\d+(\.\d+)?)\s*N\s*(-?\d+(\.\d+)?)/i) {
+    if ($string =~ /E(-?\s*\d+(\.\d+)?)\s*N\s*(-?\d+(\.\d+)?)/i) {
 	return [$3, $1];
     }
 
@@ -118,6 +119,30 @@ sub filter_locations($$)
     my @ret = grep { $_->{LOCATION} =~ /$needle/ } @{$haystack};
 
     return \@ret;
+}
+
+# from Math::Trig manpage:
+sub NESW { deg2rad($_[0]), deg2rad(90 - $_[1]) }
+
+sub calculate_distance($$$)
+# calculate distance in km from current position to target
+#
+# This uses a spherical model which can result in up to 0.55% error (0.3% mean error).
+# See http://www.movable-type.co.uk/scripts/latlong.html and
+# http://www.movable-type.co.uk/scripts/latlong-vincenty.html
+# for better algorithms.
+{
+    my ($target, $lat1, $long1) = (@_);
+
+    return great_circle_distance( NESW( $long1, $lat1 ), @{$target}, 6378);
+}
+
+sub calculate_bearing($$$)
+# calculate direction from current position to target
+{
+    my ($target, $lat1, $long1) = (@_);
+
+    return rad2deg( great_circle_distance( NESW( $long1, $lat1 ), @{$target} ) );
 }
 
 
@@ -179,6 +204,9 @@ if ( $target = parse_coordinates( $params ) ) {
 # start tracking
 # TODO do_stuff($target);
 
+# one-time-conversion for target coordinates
+$target = [ NESW($target->[1], $target->[0]) ];
+
 my_print 'connecting to gpsd';
 my $iaddr = inet_aton($gpsd_host) or abend 4, "unkown host: `$gpsd_host'";
 my $paddr = sockaddr_in($gpsd_port, $iaddr);
@@ -210,8 +238,8 @@ while (1) {
 	my @fields = split /\s+/, $line;
 	my ($timestamp, $latitude, $longitude, $course, $bearing, $distance, $turn) = ($fields[1], $fields[3], $fields[4], $fields[7], undef, undef, undef);
 
-	$bearing = 0; ## insert magic;
-	$distance = 1; ## insert magic;
+	$distance = calculate_distance($target, $latitude, $longitude);
+	$bearing = calculate_bearing($target, $latitude, $longitude);
 
 	if ($course eq '?') {
 	    $turn = '?';
