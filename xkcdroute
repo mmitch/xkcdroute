@@ -29,7 +29,21 @@ sub show_usage()
 # print usage instructions
 {
     print <<'EOF';
-xkcdroute [ -v | --verbose ] [ --help | shortcut | <latitude> <longitude> ]
+xkcdroute [ -v | --verbose ] [ --help | <location> | <coordinate> ]
+
+Displays  the   distance  and  bearing  from   your  current  position
+(determined  via gpsd)  to a  selected target.   The target  is either
+given via a known location or a coordinate.
+
+A  coordinate basically  has  the form  'N51.00  E4.05' (latitude  and
+longitude) or something similar.   The algorithm should detect several
+variations of this  scheme.  It also parses Googlemaps  URLs when they
+contain a q= parameter with numeric values for latitude and longitude.
+
+Known locations  are read from ~/.xkcdroute.  Every  line must consist
+of a location name (used for the lookup), followed by a whitespace and
+a coordinate.  Empty  lines are ignored and lines  starting with # are
+treated as a comment.
 EOF
 ;
 }
