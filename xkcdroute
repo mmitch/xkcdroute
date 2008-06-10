@@ -29,7 +29,7 @@ sub show_usage()
 # print usage instructions
 {
     print <<'EOF';
-xkcdroute [ -v | --verbose ] [ --help | <location> | <coordinate> ]
+xkcdroute [ -v | --verbose ] [ -h | --help | <location> | <coordinate> ]
 
 Displays  the   distance  and  bearing  from   your  current  position
 (determined  via gpsd)  to a  selected target.   The target  is either
@@ -182,7 +182,7 @@ my $params = join ' ', @ARGV;
 my $target = undef;
 
 # handle help
-if ( $params eq '--help' ) {
+if ( $params eq '-h' or $params eq '--help' ) {
     show_usage;
     exit 0;
 }
