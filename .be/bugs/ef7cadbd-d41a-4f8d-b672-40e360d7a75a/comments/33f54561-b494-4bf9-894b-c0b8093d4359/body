@@ -1,0 +1,4 @@
+use Vicenty algorithm for more precise results in distance calculation
+see http://www.movable-type.co.uk/scripts/latlong-vincenty.html
+
+bonus points for automatic detection of the geoid that's suited best for the current position
