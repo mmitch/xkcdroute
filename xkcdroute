@@ -431,6 +431,9 @@ select($old_fh);
 
 my_print 'connected';
 
+# cache clear screen string
+my $cls = `clear`;
+
 while (1) {
 
     my_print 'sending o';
@@ -457,12 +460,13 @@ while (1) {
 	}
 	
 #	print scalar localtime, " N$latitude E$longitude C$course D$distance B$bearing T$turn\n";
+	print $cls;
 	print '    time  ' . localtime( $timestamp) . "\n\n";
 
 	my $string = new_string();
 	concat_small($string, 'distance  ');
 	concat_big($string, sprintf('%.3f', $distance));
-	concat_small($string, 'klicks');
+	concat_small($string, ' klicks');
 	print_string($string);
 	print "\n";
 
@@ -478,6 +482,7 @@ while (1) {
 	    concat_big($string, sprintf('%.0f', to_clock($turn)));
 	    concat_small($string, " o'clock");
 	    print_string($string);
+	    print "\n";
 	}
 
 	if ($course ne '?') {
