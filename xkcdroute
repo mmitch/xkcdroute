@@ -572,7 +572,7 @@ while (1) {
 	if ($course eq '?') {
 	    $turn = '?';
 	} else {
-	    $turn = $course - $bearing;
+	    $turn = $bearing - $course;
 	}
 	
 #	print scalar localtime, " N$latitude E$longitude C$course D$distance B$bearing T$turn\n";
