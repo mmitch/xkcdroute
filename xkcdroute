@@ -38,7 +38,8 @@ given via a known location or a coordinate.
 A  coordinate basically  has  the form  'N51.00  E4.05' (latitude  and
 longitude) or something similar.   The algorithm should detect several
 variations of this  scheme.  It also parses Googlemaps  URLs when they
-contain a q= parameter with numeric values for latitude and longitude.
+contain a  q= or  ll= parameter with  numeric values for  latitude and
+longitude.
 
 Known locations  are read from ~/.xkcdroute.  Every  line must consist
 of a location name (used for the lookup), followed by a whitespace and
@@ -108,6 +109,10 @@ sub parse_coordinates($)
     }
 
     if ($string =~ m;^http://maps\.google.*/maps\?(?:[^&]+&)*q=(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?);i ) {
+	return [$1, $2];
+    }
+
+    if ($string =~ m;^http://maps\.google.*/maps\?(?:[^&]+&)*ll=(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?);i ) {
 	return [$1, $2];
     }
 
@@ -587,8 +592,9 @@ while (1) {
 	    $turn = $bearing - $course;
 	}
 	
-#	print scalar localtime, " N$latitude E$longitude C$course D$distance B$bearing T$turn\n";
 	print $cls;
+#       print "$line\n";
+#	print scalar localtime, " N$latitude E$longitude C$course D$distance B$bearing T$turn\n";
 	print '    time  ' . localtime( $timestamp) . "\n\n";
 
 	my $string = new_string();
