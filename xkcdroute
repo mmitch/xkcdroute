@@ -70,6 +70,19 @@ sub parse_coordinates($)
 {
     my $string = shift;
 
+    # things like "N52 25.551 E009 25.574" (minutes!)  (WGS84)
+    if ($string =~ /([ns])0*(\d+)\s+(\d+(?:\.\d+))\s+([eow])0*(\d+)\s+(\d+(?:\.\d+))/i) {
+	my ($n, $s) = ($2 + $3/60, $5 + $6/60);
+	if ($1 =~ /s/i) {
+	    $n *= -1;
+	}
+	if ($4 =~ /w/i) {
+	    $n *= -1;
+	}
+	print "$n  $s\n";
+	return [$n, $s];
+    }
+
     if ($string =~ /(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)/) {
 	return [$1, $2];
     }
@@ -527,7 +540,6 @@ if ( $target = parse_coordinates( $params ) ) {
 }
 
 # start tracking
-# TODO do_stuff($target);
 
 # one-time-conversion for target coordinates
 $target = [ NESW($target->[1], $target->[0]) ];
