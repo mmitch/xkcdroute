@@ -564,9 +564,6 @@ select($old_fh);
 
 my_print 'connected';
 
-# cache clear screen string
-my $cls = `clear`;
-
 while (1) {
 
     my_print 'sending o';
@@ -592,7 +589,7 @@ while (1) {
 	    $turn = $bearing - $course;
 	}
 	
-	print $cls;
+        `clear`;
 #       print "$line\n";
 #	print scalar localtime, " N$latitude E$longitude C$course D$distance B$bearing T$turn\n";
 	print '    time  ' . localtime( $timestamp) . "\n\n";
