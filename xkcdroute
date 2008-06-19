@@ -130,7 +130,7 @@ sub read_locations($)
     open LOCATIONS, '<', $file or die "can't open `$file': $!\n";
     while (my $line = <LOCATIONS>) {
 	chomp $line;
-	next if ($line =~ /^\s+$/);
+	next if ($line =~ /^\s*$/);
 	next if ($line =~ /^\s*\#/);
 	
 	if ($line =~ /^(\S+?)\s(.+)$/) {
