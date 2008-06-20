@@ -112,7 +112,7 @@ sub parse_coordinates($)
 	return [$1, $2];
     }
 
-    if ($string =~ m;^http://maps\.google.*/maps\?(?:[^&]+&)*ll=(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?);i ) {
+    if ($string =~ m;^http://maps\.google.*/maps\?(?:[^&]+&)*s?ll=(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?);i ) {
 	return [$1, $2];
     }
 
