@@ -1,0 +1,8 @@
+Check the contents of the ssl= parameter of the googlemaps URLs.
+Parsing of this parameter was added with commit
+8227759a8d607f8e43a4d0e3058d8fbbda6e8f35
+
+This might be a source location (sll= instead of ll=) as my latest
+tracking didn't guide me to my intended target but rather to my
+starting point.
+
