@@ -562,6 +562,9 @@ my $old_fh = select(SOCK);
 $| = 1;
 select($old_fh);
 
+# cache clear screen
+my $cls = `clear`;
+
 my_print 'connected';
 
 while (1) {
@@ -588,8 +591,8 @@ while (1) {
 	} else {
 	    $turn = $bearing - $course;
 	}
-	
-        `clear`;
+
+	print "$cls";
 #       print "$line\n";
 #	print scalar localtime, " N$latitude E$longitude C$course D$distance B$bearing T$turn\n";
 	print '    time  ' . localtime( $timestamp) . "\n\n";
