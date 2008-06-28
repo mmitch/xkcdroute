@@ -17,7 +17,8 @@ my $gpsd_host = 'localhost';
 my $gpsd_port = 2947;
 my $locationfile = '~/.xkcdroute';
 my $verbose = 0;
-my $sleep = 5; # seconds between updates
+my $sleep = 5;    # seconds between updates
+my $nocourse = 1; # no compass
 
 
 #
@@ -29,7 +30,7 @@ sub show_usage()
 # print usage instructions
 {
     print <<'EOF';
-xkcdroute [ -v | --verbose ] [ -h | --help | <location> | <coordinate> ]
+xkcdroute [ -c | --compass ] [ -v | --verbose ] [ -h | --help | <location> | <coordinate> ]
 
 Displays  the   distance  and  bearing  from   your  current  position
 (determined  via gpsd)  to a  selected target.   The target  is either
@@ -46,6 +47,7 @@ of a location name (used for the lookup), followed by a whitespace and
 a coordinate.  Empty  lines are ignored and lines  starting with # are
 treated as a comment.
 
+ -c, --compass   read and process current direction from GPS 
  -v, --verbose   activate verbose output
  -h, --help      show this help text
 EOF
@@ -489,12 +491,19 @@ sub to_compass($)
 #
 
 
-# parse verbosity switch
-if (defined $ARGV[0]) {
+# parse switches
+while (defined $ARGV[0]) {
     if ($ARGV[0] eq '-v' or $ARGV[0] eq '--verbose') {
 	$verbose = 1;
 	shift @ARGV;
+	next;
     }
+    if ($ARGV[0] eq '-c' or $ARGV[0] eq '--compass') {
+	$nocourse = 0;
+	shift @ARGV;
+	next;
+    }
+    last;
 }
 
 # prepare variables
@@ -586,7 +595,7 @@ while (1) {
 	$distance = calculate_distance($target, $latitude, $longitude);
 	$bearing = calculate_bearing($target, $latitude, $longitude);
 
-	if ($course eq '?') {
+	if ($nocourse or $course eq '?') {
 	    $turn = '?';
 	} else {
 	    $turn = $bearing - $course;
