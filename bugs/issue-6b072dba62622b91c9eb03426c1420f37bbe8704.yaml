@@ -1,0 +1,18 @@
+--- !ditz.rubyforge.org,2008-03-06/issue 
+title: use error values from GPS
+desc: show current error values / show target reached, when final distance < error
+type: :feature
+component: xkcdroute
+release: release 0.1
+reporter: Christian Garbs <mitch@cgarbs.de>
+status: :unstarted
+disposition: 
+creation_time: 2008-06-29 15:06:48.424402 Z
+references: []
+
+id: 6b072dba62622b91c9eb03426c1420f37bbe8704
+log_events: 
+- - 2008-06-29 15:06:49.369212 Z
+  - Christian Garbs <mitch@cgarbs.de>
+  - created
+  - ""

@@ -1,0 +1,4 @@
+bugs/features/tasks are handled directly inside this repository via ditz,
+see http://ditz.rubyforge.org/
+
+for everything else see the xkcdroute file for now
