@@ -1,0 +1,18 @@
+--- !ditz.rubyforge.org,2008-03-06/issue 
+title: add speech synthesis
+desc: take a look at flite (festival lite) and output directions via audio
+type: :feature
+component: xkcdroute
+release: 
+reporter: Christian Garbs <mitch@cgarbs.de>
+status: :unstarted
+disposition: 
+creation_time: 2008-07-04 18:43:50.742511 Z
+references: []
+
+id: eec97315abf8b801e2eaac2e34a201a34bf453b0
+log_events: 
+- - 2008-07-04 18:43:53.680871 Z
+  - Christian Garbs <mitch@cgarbs.de>
+  - created
+  - ""
