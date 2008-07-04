@@ -5,7 +5,7 @@ type: :feature
 component: xkcdroute
 release: 
 reporter: Christian Garbs <mitch@cgarbs.de>
-status: :unstarted
+status: :in_progress
 disposition: 
 creation_time: 2008-07-04 18:43:50.742511 Z
 references: []
@@ -16,3 +16,7 @@ log_events:
   - Christian Garbs <mitch@cgarbs.de>
   - created
   - ""
+- - 2008-07-05 19:16:49.473615 Z
+  - Christian Garbs <mitch@cgarbs.de>
+  - changed status from unstarted to in_progress
+  - should work already, but it's completely untested

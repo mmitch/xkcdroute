@@ -488,6 +488,17 @@ sub to_compass($)
     return qw(N NNE NE ENE E ESE SE SSE S SSW SW WSW W WNW NW NNW)[$index];
 }
 
+sub to_direction($)
+# converts degrees into point of compass (long text)
+{
+    my $text = to_compass(shift);
+    $text =~ s/N/north/g;
+    $text =~ s/E/east/g;
+    $text =~ s/S/south/g;
+    $text =~ s/W/west/g;
+    return $text;
+}
+
 
 #
 # Main program
@@ -563,6 +574,8 @@ if ( $target = parse_coordinates( $params ) ) {
 
 # start tracking
 
+my $flitecnt = 0;
+
 # one-time-conversion for target coordinates
 $target = [ NESW($target->[1], $target->[0]) ];
 
@@ -593,6 +606,8 @@ while (1) {
     chomp $line;
     $line =~ s/\r$//;
 
+    my $flitetxt = '';
+
     my_print "received: $line";
     if ($line eq 'GPSD,O=?') {
 	print scalar localtime, " NO FIX!\n";
@@ -602,46 +617,63 @@ while (1) {
 
 	$distance = calculate_distance($target, $latitude, $longitude);
 	$bearing = calculate_bearing($target, $latitude, $longitude);
-
+	
 	if ($nocourse or $course eq '?') {
 	    $turn = '?';
 	} else {
 	    $turn = $bearing - $course;
 	}
-
+	
 	print "$cls";
 #       print "$line\n";
 #	print scalar localtime, " N$latitude E$longitude C$course D$distance B$bearing T$turn\n";
 	print '    time  ' . localtime( $timestamp) . "\n\n";
-
+	
+	my $klicks = sprintf('%.3f', $distance);
 	my $string = new_string();
 	concat_small($string, 'distance  ');
-	concat_big($string, sprintf('%.3f', $distance));
+	concat_big($string, $klicks);
 	concat_small($string, 'klicks');
 	print_string($string);
 	print "\n";
-
+	
+	$klicks =~ s/0+$//;
+	$flitetxt .= "$klicks klicks  ";
+	
 	$string = new_string();
 	concat_small($string, '  course  ');
 	concat_big($string, to_compass($bearing));
 	print_string($string);
 	print "\n";
 	
+	$flitetxt .= to_direction($bearing);
+	    
 	if ($turn ne '?') {
+	    my $hour = sprintf('%.0f', to_clock($turn));
 	    $string = new_string();
 	    concat_small($string, '       at  ');
-	    concat_big($string, sprintf('%.0f', to_clock($turn)));
+	    concat_big($string, $hour);
 	    concat_small($string, " o'clock");
 	    print_string($string);
 	    print "\n";
+
+	    $flitetxt .= "  $hour o'clock";
 	}
 
 	if ($course ne '?') {
 	    print '   course  ' . to_compass($course) . "\n";
 	}
+
+	if ($flitecnt == $fliteslp) {
+	    $flitecnt = 0;
+	    system ('flite', $flitetxt);
+	}
+
     }
 
     sleep $sleep;
+
+    $flitecnt += $useflite;
 
 }
 
