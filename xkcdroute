@@ -19,6 +19,8 @@ my $locationfile = '~/.xkcdroute';
 my $verbose = 0;
 my $sleep = 5;    # seconds between updates
 my $nocourse = 1; # no compass
+my $useflite = 0; # no flite
+my $fliteslp = 24; # $sleep * 24 -> text announcement every 2 minutes
 
 
 #
@@ -30,7 +32,7 @@ sub show_usage()
 # print usage instructions
 {
     print <<'EOF';
-xkcdroute [ -c | --compass ] [ -v | --verbose ] [ -h | --help | <location> | <coordinate> ]
+xkcdroute [OPTION] [ <location> | <coordinate> ]
 
 Displays  the   distance  and  bearing  from   your  current  position
 (determined  via gpsd)  to a  selected target.   The target  is either
@@ -48,6 +50,7 @@ a coordinate.  Empty  lines are ignored and lines  starting with # are
 treated as a comment.
 
  -c, --compass   read and process current direction from GPS 
+ -f, --flite     use text-to-speech output
  -v, --verbose   activate verbose output
  -h, --help      show this help text
 EOF
@@ -493,13 +496,18 @@ sub to_compass($)
 
 # parse switches
 while (defined $ARGV[0]) {
-    if ($ARGV[0] eq '-v' or $ARGV[0] eq '--verbose') {
-	$verbose = 1;
+    if ($ARGV[0] eq '-c' or $ARGV[0] eq '--compass') {
+	$nocourse = 0;
 	shift @ARGV;
 	next;
     }
-    if ($ARGV[0] eq '-c' or $ARGV[0] eq '--compass') {
-	$nocourse = 0;
+    if ($ARGV[0] eq '-f' or $ARGV[0] eq '--flite') {
+	$useflite = 1;
+	shift @ARGV;
+	next;
+    }
+    if ($ARGV[0] eq '-v' or $ARGV[0] eq '--verbose') {
+	$verbose = 1;
 	shift @ARGV;
 	next;
     }
