@@ -3,6 +3,8 @@
 # simple navigation software based on an idea from xkcd.org
 #
 # 2008 (c) by Christian Garbs <mitch@cgarbs.de>
+# Licensed under GNU GPL
+#
 
 use strict;
 use Math::Trig qw(great_circle_direction great_circle_distance deg2rad rad2deg);
